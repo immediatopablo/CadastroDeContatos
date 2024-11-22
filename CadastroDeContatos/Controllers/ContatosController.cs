@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace MeuProjeto.Controllers
 {
     public class ContatosController : Controller
@@ -17,11 +18,37 @@ namespace MeuProjeto.Controllers
         }
 
         // Ação para listar os contatos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? searchNome, string? searchCPF)
         {
-            var contatos = await _context.Contatos.ToListAsync();
+            // Passa os valores para a ViewData para uso na view
+            ViewData["CurrentNomeFilter"] = searchNome;
+            ViewData["CurrentCPFFilter"] = searchCPF;
+
+            // Consulta inicial
+            var query = _context.Contatos.AsQueryable();
+
+            // Filtro por Nome
+            if (!string.IsNullOrWhiteSpace(searchNome))
+            {
+                query = query.Where(c => c.Nome.ToLower().Contains(searchNome.ToLower()));
+            }
+
+            // Filtro por CPF
+            if (!string.IsNullOrWhiteSpace(searchCPF))
+            {
+                query = query.Where(c => c.CPF.Contains(searchCPF));
+            }
+
+            // Ordenação alfabética
+            query = query.OrderBy(c => c.Nome);
+
+            // Obtém a lista filtrada e ordenada
+            var contatos = await query.ToListAsync();
             return View(contatos);
         }
+
+
+
 
         // Ação para criar um novo contato (GET)
         public IActionResult Create()

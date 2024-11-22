@@ -6,9 +6,17 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<a href="@Url.Action("Create", "Contatos")" class="btn btn-primary">Adicionar Contato</a>
-<br />
-<br />
+<form method="get" asp-action="Index">
+    <div class="form-group">
+        <label for="searchNome">Nome</label>
+        <input type="text" id="searchNome" name="searchNome" class="form-control" value="@ViewData["CurrentNomeFilter"]" />
+    </div>
+    <div class="form-group">
+        <label for="searchCPF">CPF</label>
+        <input type="text" id="searchCPF" name="searchCPF" class="form-control" value="@ViewData["CurrentCPFFilter"]" />
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
 
 <table class="table">
     <thead>
@@ -17,7 +25,7 @@
             <th>CPF</th>
             <th>Telefone</th>
             <th>Cidade</th>
-            <th>Actions</th>
+            <th>Ações</th>
         </tr>
     </thead>
     <tbody>
@@ -29,8 +37,8 @@
                 <td>@contato.Telefone</td>
                 <td>@contato.Cidade</td>
                 <td>
-                    <a href="@Url.Action("Edit", "Contatos", new { id = contato.Id })" class="btn btn-warning">Editar</a>
-                    <a href="@Url.Action("Delete", "Contatos", new { id = contato.Id })" class="btn btn-danger">Excluir</a>
+                    <a asp-action="Edit" asp-route-id="@contato.Id" class="btn btn-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@contato.Id" class="btn btn-danger">Excluir</a>
                 </td>
             </tr>
         }
