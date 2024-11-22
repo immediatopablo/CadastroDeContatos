@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using CadastroDeContatos.Models; 
+using CadastroDeContatos.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -34,12 +34,19 @@ namespace MeuProjeto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Nome,CPF,Telefone,Cidade,Latitude,Longitude")] Contato contato)
         {
+            // Verifica se o CPF já existe
+            if (_context.Contatos.Any(c => c.CPF == contato.CPF))
+            {
+                ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(contato);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(contato);
         }
 
@@ -69,6 +76,12 @@ namespace MeuProjeto.Controllers
                 return NotFound();
             }
 
+            // Verifica se outro contato já utiliza o mesmo CPF
+            if (_context.Contatos.Any(c => c.CPF == contato.CPF && c.Id != contato.Id))
+            {
+                ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -89,6 +102,7 @@ namespace MeuProjeto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             return View(contato);
         }
 
