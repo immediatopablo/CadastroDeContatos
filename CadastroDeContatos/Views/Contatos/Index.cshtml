@@ -1,0 +1,38 @@
+﻿@model IEnumerable<CadastroDeContatos.Models.Contato>
+
+@{
+    ViewData["Title"] = "Lista de Contatos";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<a href="@Url.Action("Create", "Contatos")" class="btn btn-primary">Adicionar Contato</a>
+<br />
+<br />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Telefone</th>
+            <th>Cidade</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contato in Model)
+        {
+            <tr>
+                <td>@contato.Nome</td>
+                <td>@contato.CPF</td>
+                <td>@contato.Telefone</td>
+                <td>@contato.Cidade</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Contatos", new { id = contato.Id })" class="btn btn-warning">Editar</a>
+                    <a href="@Url.Action("Delete", "Contatos", new { id = contato.Id })" class="btn btn-danger">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

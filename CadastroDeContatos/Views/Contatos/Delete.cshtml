@@ -1,0 +1,15 @@
+﻿@model CadastroDeContatos.Models.Contato
+
+@{
+    ViewData["Title"] = "Excluir Contato";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h3>Você tem certeza que deseja excluir o contato "@Model.Nome"?</h3>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Excluir</button>
+    <a href="@Url.Action("Index", "Contatos")" class="btn btn-secondary">Cancelar</a>
+</form>

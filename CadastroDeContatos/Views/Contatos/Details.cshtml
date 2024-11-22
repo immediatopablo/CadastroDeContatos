@@ -1,0 +1,15 @@
+﻿oogle.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: location
+        });
+
+        new google.maps.Marker({
+            position: location,
+            map: map
+        });
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdfmKfdDgHw0L7DyeWvcE1HTOTwOP1z9c&callback=initMap"></script>
+
+<a href="@Url.Action("Edit", "Contatos", new { id = Model.Id })">Editar</a> |
+<a href="@Url.Action("Delete", "Contatos", new { id = Model.Id })">Excluir</a>
