@@ -75,6 +75,14 @@
         <main>
             @RenderBody()  <!-- Este comando insere o conteúdo das views aqui -->
         </main>
+
+        <!-- Link para a página de redefinição de senha -->
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="text-center mt-4">
+                <a class="btn btn-link" href="@Url.Action("ForgotPassword", "Account")">Esqueci a Senha</a>
+            </div>
+        }
     </div>
 
     <!-- Scripts (opcional) -->

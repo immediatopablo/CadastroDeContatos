@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Página Inicial";
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Material Icons e Material Components -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Estilos personalizados -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-message {
+            font-size: 1.2rem;
+            color: #555;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .mdc-button {
+            margin-top: 20px;
+            background-color: #6200ea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+            .mdc-button:hover {
+                background-color: #3700b3;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>@ViewData["Title"]</h1>
+            <p>Bem-vindo ao sistema de Cadastro de Contatos!</p>
+        </div>
+
+        <!-- Card Section -->
+        <div class="mdc-card">
+            <h2>Cadastro de Contatos</h2>
+            <p class="welcome-message">
+                Este sistema permite gerenciar seus contatos de forma simples e eficiente. Use as funcionalidades para cadastrar, editar, e excluir contatos.
+            </p>
+
+            <div>
+                <a href="@Url.Action("Index", "Contatos")" class="mdc-button">
+                    <span class="material-icons">contacts</span>
+                    Acessar Cadastros
+                </a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -92,11 +92,13 @@ namespace CadastroDeContatos.Controllers
 
             var contatosQuery = _context.Contatos.AsQueryable();
 
+            // Filtro pelo nome, ignorando maiúsculas e minúsculas
             if (!string.IsNullOrEmpty(searchNome))
             {
-                contatosQuery = contatosQuery.Where(c => c.Nome.Contains(searchNome));
+                contatosQuery = contatosQuery.Where(c => c.Nome.ToLower().Contains(searchNome.ToLower()));
             }
 
+            // Filtro pelo CPF
             if (!string.IsNullOrEmpty(searchCPF))
             {
                 contatosQuery = contatosQuery.Where(c => c.CPF.Contains(searchCPF));
@@ -117,6 +119,9 @@ namespace CadastroDeContatos.Controllers
                 Email = c.Email,
                 Estado = c.Estado // Incluindo o Estado no ViewModel
             });
+
+            // Contador de contatos
+            ViewData["TotalContatos"] = contatosList.Count;
 
             ViewData["SuccessMessage"] = TempData["SuccessMessage"];
             return View(contatosViewModel);

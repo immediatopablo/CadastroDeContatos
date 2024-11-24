@@ -25,7 +25,6 @@ namespace CadastroDeContatos.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            // Passa um novo objeto RegisterViewModel para a view para evitar o erro de null
             return View(new RegisterViewModel());
         }
 
@@ -33,6 +32,14 @@ namespace CadastroDeContatos.Controllers
         [HttpGet]
         public IActionResult GoogleMaps()
         {
+            return View();
+        }
+
+        // Página de login (GET)
+        [HttpGet]
+        public IActionResult Login(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl ?? Url.Content("~/");
             return View();
         }
 
@@ -56,7 +63,7 @@ namespace CadastroDeContatos.Controllers
                 if (result.Succeeded)
                 {
                     TempData["SuccessMessage"] = "Cadastro realizado com sucesso! Você pode fazer login agora.";
-                    return RedirectToAction("Login"); // Redireciona para a página de login
+                    return RedirectToAction("Login");
                 }
                 else
                 {
@@ -67,36 +74,115 @@ namespace CadastroDeContatos.Controllers
                     }
                 }
             }
-
-            return View(model);  // Repassa o modelo preenchido para a view em caso de falha de validação
+            return View(model);
         }
 
-        // Página de login (GET)
+        // Método de redefinir senha - Página de solicitação de redefinição (GET)
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult ForgotPassword()
         {
-            ViewData["ReturnUrl"] = returnUrl ?? Url.Content("~/"); // Retorna ao padrão (home) se não houver retorno
             return View();
         }
 
-        // Método para realizar o login (POST)
+        // Método para enviar o link de redefinição de senha (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    TempData["InfoMessage"] = "Se o e-mail informado estiver correto, você receberá um link para redefinir sua senha.";
+                    return RedirectToAction("ForgotPasswordConfirmation");
+                }
+
+                // Redireciona diretamente para a página de redefinição de senha
+                return RedirectToAction("ResetPassword", new { email = model.Email });
+            }
+
+            return View(model);
+        }
+
+        // Página para redefinir senha (GET)
+        [HttpGet]
+        public IActionResult ResetPassword(string email)
+        {
+            if (email == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var model = new ResetPasswordViewModel { Email = email };
+            return View(model);
+        }
+
+        // Método para processar a redefinição de senha (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "Usuário não encontrado.";
+                    return RedirectToAction("Login");
+                }
+
+                // Redefinir a senha diretamente
+                var result = await _userManager.RemovePasswordAsync(user); // Remove a senha atual
+                if (!result.Succeeded)
+                {
+                    TempData["ErrorMessage"] = "Erro ao remover a senha atual.";
+                    return View(model);
+                }
+
+                result = await _userManager.AddPasswordAsync(user, model.Password); // Adiciona a nova senha
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "Sua senha foi redefinida com sucesso!";
+                    return RedirectToAction("Login");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return View(model);
+        }
+
+        // Método para realizar login (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-                if (result.Succeeded)
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null)
                 {
-                    // Redirecionar para a página de contatos, ou para a URL de retorno
-                    return RedirectToLocal(returnUrl);
+                    // Verificar a senha do usuário
+                    var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("Usuário logado com sucesso.");
+                        return RedirectToLocal(returnUrl); // Redireciona para a URL desejada após o login
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Falha ao realizar login. E-mail ou senha incorretos.");
+                    }
                 }
-
-                ModelState.AddModelError(string.Empty, "Senha ou e-mail inválidos.");
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Usuário não encontrado.");
+                }
             }
-
             return View(model);
         }
 
@@ -106,7 +192,7 @@ namespace CadastroDeContatos.Controllers
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("Usuário deslogado.");
-            return RedirectToAction("Login", "Account"); // Redireciona para a página de login
+            return RedirectToAction("Login", "Account");
         }
 
         // Método auxiliar para redirecionar para a URL de origem ou para a página de contatos
@@ -114,17 +200,17 @@ namespace CadastroDeContatos.Controllers
         {
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
-                return Redirect(returnUrl); // Redireciona para a URL de retorno
+                return Redirect(returnUrl);
             }
             else
             {
-                return RedirectToAction("Index", "Contatos"); // Redireciona para a página de contatos
+                return RedirectToAction("Index", "Contatos");
             }
         }
 
         // Ação para exibir a página de confirmação de exclusão (GET)
         [HttpGet]
-        [Authorize] // Garante que somente o usuário logado pode acessar
+        [Authorize]
         public async Task<IActionResult> DeleteAccount()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -134,7 +220,6 @@ namespace CadastroDeContatos.Controllers
                 return NotFound();
             }
 
-            // Cria o ViewModel com o nome do usuário
             var model = new DeleteAccountViewModel
             {
                 UserName = user.UserName
@@ -146,7 +231,7 @@ namespace CadastroDeContatos.Controllers
         // Ação para excluir a conta do usuário (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize] // Garante que somente o usuário logado pode acessar
+        [Authorize]
         public async Task<IActionResult> DeleteAccountConfirmed()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -156,16 +241,13 @@ namespace CadastroDeContatos.Controllers
                 return NotFound();
             }
 
-            // Exclui o usuário
             var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)
             {
                 _logger.LogInformation("Usuário excluído com sucesso.");
-                await _signInManager.SignOutAsync(); // Desloga o usuário
+                await _signInManager.SignOutAsync();
                 TempData["SuccessMessage"] = "Sua conta foi excluída com sucesso!";
-
-                // Redireciona para a página de login após a exclusão
-                return RedirectToAction("Login", "Account"); // Redireciona para a página de login
+                return RedirectToAction("Index", "Contatos"); // Redireciona para a página inicial após a exclusão
             }
             else
             {
