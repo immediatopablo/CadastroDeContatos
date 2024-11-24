@@ -31,7 +31,8 @@
             <th>Logradouro</th>
             <th>Bairro</th>
             <th>CEP</th>
-            <th>Email</th> <!-- Nova coluna de E-mail -->
+            <th>Email</th>
+            <th>Estado</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -46,7 +47,8 @@
                 <td>@contato.Logradouro</td>
                 <td>@contato.Bairro</td>
                 <td>@contato.Cep</td>
-                <td>@contato.Email</td> <!-- Exibindo o E-mail -->
+                <td>@contato.Email</td>
+                <td>@contato.Estado</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@contato.Id" class="btn btn-warning">Editar</a>
                     <a asp-action="Delete" asp-route-id="@contato.Id" class="btn btn-danger">Excluir</a>

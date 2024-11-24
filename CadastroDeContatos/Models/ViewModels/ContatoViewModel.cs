@@ -41,6 +41,7 @@ namespace CadastroDeContatos.Models.ViewModels
 
         // Propriedade para exibição do sucesso no cadastro (opcional)
         public string SuccessMessage { get; set; }
+        public string Estado { get; set; }
     }
 
     // Classe para validação personalizada do CPF

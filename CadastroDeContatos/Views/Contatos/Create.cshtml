@@ -22,51 +22,73 @@
 <form asp-action="Create" method="post">
     <div class="form-group">
         <label for="Nome">Nome</label>
-        <input type="text" class="form-control" id="Nome" name="Nome" value="@Model.Nome" />
-        @Html.ValidationMessageFor(model => model.Nome, "", new { @class = "text-danger" })
+        <input type="text" class="form-control" id="Nome" asp-for="Nome" />
     </div>
 
     <div class="form-group">
         <label for="CPF">CPF</label>
-        <input type="text" class="form-control" id="CPF" name="CPF" value="@Model.CPF" />
-        @Html.ValidationMessageFor(model => model.CPF, "", new { @class = "text-danger" })
+        <input type="text" class="form-control" id="CPF" asp-for="CPF" />
     </div>
 
     <div class="form-group">
         <label for="Telefone">Telefone</label>
-        <input type="text" class="form-control" id="Telefone" name="Telefone" value="@Model.Telefone" />
-        @Html.ValidationMessageFor(model => model.Telefone, "", new { @class = "text-danger" })
-    </div>
-
-    <div class="form-group">
-        <label for="Cidade">Cidade</label>
-        <input type="text" class="form-control" id="Cidade" name="Cidade" value="@Model.Cidade" />
-        @Html.ValidationMessageFor(model => model.Cidade, "", new { @class = "text-danger" })
-    </div>
-
-    <div class="form-group">
-        <label for="Logradouro">Logradouro</label>
-        <input type="text" class="form-control" id="Logradouro" name="Logradouro" value="@Model.Logradouro" />
-        @Html.ValidationMessageFor(model => model.Logradouro, "", new { @class = "text-danger" })
-    </div>
-
-    <div class="form-group">
-        <label for="Bairro">Bairro</label>
-        <input type="text" class="form-control" id="Bairro" name="Bairro" value="@Model.Bairro" />
-        @Html.ValidationMessageFor(model => model.Bairro, "", new { @class = "text-danger" })
+        <input type="text" class="form-control" id="Telefone" asp-for="Telefone" />
     </div>
 
     <div class="form-group">
         <label for="Cep">CEP</label>
-        <input type="text" class="form-control" id="Cep" name="Cep" value="@Model.Cep" />
-        @Html.ValidationMessageFor(model => model.Cep, "", new { @class = "text-danger" })
+        <input type="text" class="form-control" id="Cep" asp-for="Cep" />
     </div>
 
     <div class="form-group">
-        <label for="Email">E-mail</label>
-        <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" />
-        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+        <label for="Logradouro">Logradouro</label>
+        <input type="text" class="form-control" id="Logradouro" asp-for="Logradouro" />
+    </div>
+
+    <div class="form-group">
+        <label for="Bairro">Bairro</label>
+        <input type="text" class="form-control" id="Bairro" asp-for="Bairro" />
+    </div>
+
+    <div class="form-group">
+        <label for="Cidade">Cidade</label>
+        <input type="text" class="form-control" id="Cidade" asp-for="Cidade" />
+    </div>
+
+    <div class="form-group">
+        <label for="Estado">Estado</label>
+        <input type="text" class="form-control" id="Estado" asp-for="Estado" />
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" class="form-control" id="Email" asp-for="Email" />
     </div>
 
     <button type="submit" class="btn btn-primary">Salvar</button>
 </form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#Cep').blur(function () {
+                var cep = $(this).val().replace('-', '');
+                if (cep.length == 8) { // Verifica se o CEP tem 8 caracteres
+                    $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function (data) {
+                        if (!data.erro) {
+                            $('#Logradouro').val(data.logradouro);
+                            $('#Bairro').val(data.bairro);
+                            $('#Cidade').val(data.localidade);
+                            $('#Estado').val(data.uf);
+                        } else {
+                            alert('CEP não encontrado.');
+                        }
+                    });
+                } else {
+                    alert('CEP inválido.');
+                }
+            });
+        });
+    </script>
+}

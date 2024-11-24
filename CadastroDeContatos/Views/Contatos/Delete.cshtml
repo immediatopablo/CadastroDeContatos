@@ -9,7 +9,7 @@
 
 <h3>Você tem certeza que deseja excluir o contato "@Model.Nome"?</h3>
 
-<form asp-action="Delete" method="post">
+<form asp-action="DeleteConfirmed" method="post">
     <input type="hidden" asp-for="Id" />
     <button type="submit" class="btn btn-danger">Excluir</button>
     <a href="@Url.Action("Index", "Contatos")" class="btn btn-secondary">Cancelar</a>

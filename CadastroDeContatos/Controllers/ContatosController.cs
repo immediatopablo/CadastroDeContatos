@@ -37,10 +37,18 @@ namespace CadastroDeContatos.Controllers
         {
             _logger.LogInformation($"Dados recebidos para o contato: Nome={model.Nome}, CPF={model.CPF}");
 
+            // Verificação de CPF duplicado
             if (_context.Contatos.Any(c => c.CPF == model.CPF))
             {
                 ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
                 _logger.LogWarning($"CPF duplicado encontrado: {model.CPF}");
+            }
+
+            // Verificação de e-mail duplicado
+            if (_context.Contatos.Any(c => c.Email == model.Email))
+            {
+                ModelState.AddModelError("Email", "Este e-mail já está cadastrado.");
+                _logger.LogWarning($"E-mail duplicado encontrado: {model.Email}");
             }
 
             if (ModelState.IsValid)
@@ -56,7 +64,8 @@ namespace CadastroDeContatos.Controllers
                         Logradouro = model.Logradouro,
                         Bairro = model.Bairro,
                         Cep = model.Cep,
-                        Email = model.Email // Incluindo o E-mail
+                        Email = model.Email,
+                        Estado = model.Estado // Adicionando o Estado
                     };
 
                     _context.Add(contato);
@@ -105,7 +114,8 @@ namespace CadastroDeContatos.Controllers
                 Logradouro = c.Logradouro,
                 Bairro = c.Bairro,
                 Cep = c.Cep,
-                Email = c.Email
+                Email = c.Email,
+                Estado = c.Estado // Incluindo o Estado no ViewModel
             });
 
             ViewData["SuccessMessage"] = TempData["SuccessMessage"];
@@ -140,7 +150,8 @@ namespace CadastroDeContatos.Controllers
                 Logradouro = contato.Logradouro,
                 Bairro = contato.Bairro,
                 Cep = contato.Cep,
-                Email = contato.Email // Incluindo o E-mail
+                Email = contato.Email, // Incluindo o E-mail
+                Estado = contato.Estado // Incluindo o Estado
             };
 
             return View(model);
@@ -190,6 +201,7 @@ namespace CadastroDeContatos.Controllers
                     contato.Bairro = model.Bairro;
                     contato.Cep = model.Cep;
                     contato.Email = model.Email; // Atualizando o E-mail
+                    contato.Estado = model.Estado; // Atualizando o Estado
 
                     _context.Update(contato);
                     await _context.SaveChangesAsync();
@@ -207,10 +219,38 @@ namespace CadastroDeContatos.Controllers
             return View(model);
         }
 
+        // Ação para exibir a página de confirmação de exclusão (GET)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var contato = await _context.Contatos.FindAsync(id);
+            if (contato == null)
+            {
+                _logger.LogWarning($"Contato com ID={id} não encontrado.");
+                return NotFound();
+            }
+
+            var model = new ContatoViewModel
+            {
+                Id = contato.Id,
+                Nome = contato.Nome,
+                CPF = contato.CPF,
+                Telefone = contato.Telefone,
+                Cidade = contato.Cidade,
+                Logradouro = contato.Logradouro,
+                Bairro = contato.Bairro,
+                Cep = contato.Cep,
+                Email = contato.Email,
+                Estado = contato.Estado
+            };
+
+            return View(model); // Retorna a view para confirmação de exclusão
+        }
+
         // Ação para excluir um contato (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
             {
