@@ -4,6 +4,7 @@ using CadastroDeContatos.ViewModels;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using CadastroDeContatos.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CadastroDeContatos.Controllers
 {
@@ -20,14 +21,15 @@ namespace CadastroDeContatos.Controllers
             _logger = logger;
         }
 
-        // Página do Maps
+        // Página de registro (GET)
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            // Passa um novo objeto RegisterViewModel para a view para evitar o erro de null
+            return View(new RegisterViewModel());
         }
 
-        // Página de registro (GET)
+        // Página de Google Maps (GET)
         [HttpGet]
         public IActionResult GoogleMaps()
         {
@@ -66,7 +68,7 @@ namespace CadastroDeContatos.Controllers
                 }
             }
 
-            return View(model);
+            return View(model);  // Repassa o modelo preenchido para a view em caso de falha de validação
         }
 
         // Página de login (GET)
@@ -117,6 +119,59 @@ namespace CadastroDeContatos.Controllers
             else
             {
                 return RedirectToAction("Index", "Contatos"); // Redireciona para a página de contatos
+            }
+        }
+
+        // Ação para exibir a página de confirmação de exclusão (GET)
+        [HttpGet]
+        [Authorize] // Garante que somente o usuário logado pode acessar
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Usuário não encontrado.");
+                return NotFound();
+            }
+
+            // Cria o ViewModel com o nome do usuário
+            var model = new DeleteAccountViewModel
+            {
+                UserName = user.UserName
+            };
+
+            return View(model);
+        }
+
+        // Ação para excluir a conta do usuário (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize] // Garante que somente o usuário logado pode acessar
+        public async Task<IActionResult> DeleteAccountConfirmed()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Usuário não encontrado.");
+                return NotFound();
+            }
+
+            // Exclui o usuário
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Usuário excluído com sucesso.");
+                await _signInManager.SignOutAsync(); // Desloga o usuário
+                TempData["SuccessMessage"] = "Sua conta foi excluída com sucesso!";
+
+                // Redireciona para a página de login após a exclusão
+                return RedirectToAction("Login", "Account"); // Redireciona para a página de login
+            }
+            else
+            {
+                _logger.LogError("Erro ao excluir o usuário.");
+                TempData["ErrorMessage"] = "Erro ao excluir sua conta. Tente novamente.";
+                return RedirectToAction("DeleteAccount");
             }
         }
     }

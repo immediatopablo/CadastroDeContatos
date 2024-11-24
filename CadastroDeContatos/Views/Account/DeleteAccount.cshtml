@@ -1,0 +1,33 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@model CadastroDeContatos.ViewModels.DeleteAccountViewModel
+
+<h2>Excluir Conta</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<p>Você está prestes a excluir sua conta. Esta ação é irreversível.</p>
+<p><strong>Usuário:</strong> @Model.UserName</p>
+
+<form asp-action="DeleteAccountConfirmed" method="post">
+    <button type="submit" class="btn btn-danger">Excluir Conta</button>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
