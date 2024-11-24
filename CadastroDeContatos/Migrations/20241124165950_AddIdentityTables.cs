@@ -5,7 +5,7 @@
 namespace CadastroDeContatos.Migrations
 {
     /// <inheritdoc />
-    public partial class PabloImmediato : Migration
+    public partial class AddIdentityTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

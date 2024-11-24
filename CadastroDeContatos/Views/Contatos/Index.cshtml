@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CadastroDeContatos.Models.Contato>
+﻿@using CadastroDeContatos.Models.ViewModels
+@model IEnumerable<CadastroDeContatos.Models.ViewModels.ContatoViewModel>
 
 @{
     ViewData["Title"] = "Lista de Contatos";
@@ -6,6 +7,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
+<!-- Formulário de pesquisa -->
 <form method="get" asp-action="Index">
     <div class="form-group">
         <label for="searchNome">Nome</label>
@@ -18,6 +20,7 @@
     <button type="submit" class="btn btn-primary">Filtrar</button>
 </form>
 
+<!-- Tabela de contatos -->
 <table class="table">
     <thead>
         <tr>
@@ -25,6 +28,10 @@
             <th>CPF</th>
             <th>Telefone</th>
             <th>Cidade</th>
+            <th>Logradouro</th>
+            <th>Bairro</th>
+            <th>CEP</th>
+            <th>Email</th> <!-- Nova coluna de E-mail -->
             <th>Ações</th>
         </tr>
     </thead>
@@ -36,6 +43,10 @@
                 <td>@contato.CPF</td>
                 <td>@contato.Telefone</td>
                 <td>@contato.Cidade</td>
+                <td>@contato.Logradouro</td>
+                <td>@contato.Bairro</td>
+                <td>@contato.Cep</td>
+                <td>@contato.Email</td> <!-- Exibindo o E-mail -->
                 <td>
                     <a asp-action="Edit" asp-route-id="@contato.Id" class="btn btn-warning">Editar</a>
                     <a asp-action="Delete" asp-route-id="@contato.Id" class="btn btn-danger">Excluir</a>
@@ -44,3 +55,8 @@
         }
     </tbody>
 </table>
+
+<!-- Adicionar um novo contato -->
+<div>
+    <a asp-action="Create" class="btn btn-success">Adicionar Novo Contato</a>
+</div>

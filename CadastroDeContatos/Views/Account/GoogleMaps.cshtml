@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Página Inicial";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Seja Bem Vindo</h1>
+</div>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps com Múltiplos Marcadores</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdfmKfdDgHw0L7DyeWvcE1HTOTwOP1z9c&libraries=places"></script>
+    <script>
+        let map, autocomplete;
+        const markers = []; // Lista para armazenar os marcadores
+
+        function initMap() {
+            const defaultLocation = { lat: -25.4284, lng: -49.2733 }; // Deixei Curitiba como padrão de mapa!
+
+            // Inicializa o mapa
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: defaultLocation,
+                zoom: 12,
+            });
+
+            // Configura o Autocomplete
+            const input = document.getElementById("search-box");
+            autocomplete = new google.maps.places.Autocomplete(input);
+
+            // Limita o autocomplete a lugares específicos, se necessário
+            autocomplete.setComponentRestrictions({
+                country: ["br"],
+            });
+
+            // Evento disparado ao selecionar um lugar
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) {
+                    alert("Nenhuma localização encontrada para o termo digitado.");
+                    return;
+                }
+
+                // Adiciona um novo marcador no local selecionado
+                addMarker(place.geometry.location);
+
+                // Centraliza o mapa no local
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+            });
+        }
+
+        // Função para adicionar um marcador no mapa
+        function addMarker(location) {
+            const marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                animation: google.maps.Animation.DROP, // Animação ao adicionar o marcador
+            });
+
+            // Armazena o marcador na lista
+            markers.push(marker);
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>Busca e Múltiplos Marcadores no Google Maps</h1>
+    <input id="search-box"
+           type="text"
+           placeholder="Digite o local desejado"
+           style="width: 300px; padding: 8px; margin-bottom: 10px;" />
+    <div id="map" style="height: 500px; width: 100%;"></div>
+</body>
+</html>

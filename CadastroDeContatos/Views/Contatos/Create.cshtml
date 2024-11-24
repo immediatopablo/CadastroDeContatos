@@ -1,43 +1,72 @@
-﻿@model CadastroDeContatos.Models.Contato
+﻿@model CadastroDeContatos.Models.ViewModels.ContatoViewModel
 
 @{
     ViewData["Title"] = "Criar Contato";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h2>@ViewData["Title"]</h2>
+
+<!-- Exibe erros de validação globais -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <strong>Erro!</strong> O formulário contém erros.
+    </div>
+}
+
+@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+{
+    <div class="alert alert-danger">@error.ErrorMessage</div>
+}
 
 <form asp-action="Create" method="post">
     <div class="form-group">
-        <label asp-for="Nome" class="control-label"></label>
-        <input asp-for="Nome" class="form-control @(ViewData.ModelState.ContainsKey("Nome") ? "is-invalid" : "")" />
-        <span asp-validation-for="Nome" class="text-danger"></span>
+        <label for="Nome">Nome</label>
+        <input type="text" class="form-control" id="Nome" name="Nome" value="@Model.Nome" />
+        @Html.ValidationMessageFor(model => model.Nome, "", new { @class = "text-danger" })
     </div>
 
     <div class="form-group">
-        <label asp-for="CPF" class="control-label"></label>
-        <input asp-for="CPF" class="form-control @(ViewData.ModelState.ContainsKey("CPF") ? "is-invalid" : "")" />
-        <span asp-validation-for="CPF" class="text-danger"></span>
+        <label for="CPF">CPF</label>
+        <input type="text" class="form-control" id="CPF" name="CPF" value="@Model.CPF" />
+        @Html.ValidationMessageFor(model => model.CPF, "", new { @class = "text-danger" })
     </div>
 
     <div class="form-group">
-        <label asp-for="Telefone" class="control-label"></label>
-        <input asp-for="Telefone" class="form-control @(ViewData.ModelState.ContainsKey("Telefone") ? "is-invalid" : "")" />
-        <span asp-validation-for="Telefone" class="text-danger"></span>
+        <label for="Telefone">Telefone</label>
+        <input type="text" class="form-control" id="Telefone" name="Telefone" value="@Model.Telefone" />
+        @Html.ValidationMessageFor(model => model.Telefone, "", new { @class = "text-danger" })
     </div>
 
     <div class="form-group">
-        <label asp-for="Cidade" class="control-label"></label>
-        <input asp-for="Cidade" class="form-control @(ViewData.ModelState.ContainsKey("Cidade") ? "is-invalid" : "")" />
-        <span asp-validation-for="Cidade" class="text-danger"></span>
+        <label for="Cidade">Cidade</label>
+        <input type="text" class="form-control" id="Cidade" name="Cidade" value="@Model.Cidade" />
+        @Html.ValidationMessageFor(model => model.Cidade, "", new { @class = "text-danger" })
     </div>
 
     <div class="form-group">
-        <button type="submit" class="btn btn-success">Salvar</button>
+        <label for="Logradouro">Logradouro</label>
+        <input type="text" class="form-control" id="Logradouro" name="Logradouro" value="@Model.Logradouro" />
+        @Html.ValidationMessageFor(model => model.Logradouro, "", new { @class = "text-danger" })
     </div>
+
+    <div class="form-group">
+        <label for="Bairro">Bairro</label>
+        <input type="text" class="form-control" id="Bairro" name="Bairro" value="@Model.Bairro" />
+        @Html.ValidationMessageFor(model => model.Bairro, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="Cep">CEP</label>
+        <input type="text" class="form-control" id="Cep" name="Cep" value="@Model.Cep" />
+        @Html.ValidationMessageFor(model => model.Cep, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        <label for="Email">E-mail</label>
+        <input type="email" class="form-control" id="Email" name="Email" value="@Model.Email" />
+        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
 </form>
-
-<a href="@Url.Action("Index", "Contatos")" class="btn btn-secondary">Voltar</a>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

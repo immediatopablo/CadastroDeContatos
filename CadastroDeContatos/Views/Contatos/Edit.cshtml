@@ -1,4 +1,5 @@
-﻿@model CadastroDeContatos.Models.Contato
+﻿@using CadastroDeContatos.Models.ViewModels
+@model ContatoViewModel
 
 @{
     ViewData["Title"] = "Editar Contato";
@@ -9,35 +10,57 @@
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
 
+    <!-- Campos para Nome, CPF, Telefone, etc. -->
     <div class="form-group">
         <label asp-for="Nome" class="control-label"></label>
         <input asp-for="Nome" class="form-control @(ViewData.ModelState.ContainsKey("Nome") ? "is-invalid" : "")" />
         <span asp-validation-for="Nome" class="text-danger"></span>
     </div>
-
     <div class="form-group">
         <label asp-for="CPF" class="control-label"></label>
         <input asp-for="CPF" class="form-control @(ViewData.ModelState.ContainsKey("CPF") ? "is-invalid" : "")" />
         <span asp-validation-for="CPF" class="text-danger"></span>
     </div>
-
     <div class="form-group">
         <label asp-for="Telefone" class="control-label"></label>
         <input asp-for="Telefone" class="form-control @(ViewData.ModelState.ContainsKey("Telefone") ? "is-invalid" : "")" />
         <span asp-validation-for="Telefone" class="text-danger"></span>
     </div>
-
     <div class="form-group">
         <label asp-for="Cidade" class="control-label"></label>
         <input asp-for="Cidade" class="form-control @(ViewData.ModelState.ContainsKey("Cidade") ? "is-invalid" : "")" />
         <span asp-validation-for="Cidade" class="text-danger"></span>
     </div>
+    <div class="form-group">
+        <label asp-for="Logradouro" class="control-label"></label>
+        <input asp-for="Logradouro" class="form-control @(ViewData.ModelState.ContainsKey("Logradouro") ? "is-invalid" : "")" />
+        <span asp-validation-for="Logradouro" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Bairro" class="control-label"></label>
+        <input asp-for="Bairro" class="form-control @(ViewData.ModelState.ContainsKey("Bairro") ? "is-invalid" : "")" />
+        <span asp-validation-for="Bairro" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Cep" class="control-label"></label>
+        <input asp-for="Cep" class="form-control @(ViewData.ModelState.ContainsKey("Cep") ? "is-invalid" : "")" />
+        <span asp-validation-for="Cep" class="text-danger"></span>
+    </div>
 
+    <!-- Campo para o E-mail -->
+    <div class="form-group">
+        <label asp-for="Email" class="control-label"></label>
+        <input asp-for="Email" class="form-control @(ViewData.ModelState.ContainsKey("Email") ? "is-invalid" : "")" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <!-- Botão para salvar -->
     <div class="form-group">
         <button type="submit" class="btn btn-success">Salvar</button>
     </div>
 </form>
 
+<!-- Link para voltar à lista de contatos -->
 <a href="@Url.Action("Index", "Contatos")" class="btn btn-secondary">Voltar</a>
 
 @section Scripts {

@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
-namespace CadastroDeContatos.Models
+namespace CadastroDeContatos.Models.ViewModels
 {
-    public class Contato
+    [Table("Contatos")]  // Tabela no banco de dados que vai gravar os contatos!
+    public class ContatoViewModel
     {
         public int Id { get; set; }
 
@@ -14,14 +16,34 @@ namespace CadastroDeContatos.Models
         [CustomValidationCPF(ErrorMessage = "O CPF informado não é válido.")]
         public string CPF { get; set; }
 
+        [Phone(ErrorMessage = "Insira um número de telefone válido.")]
         public string Telefone { get; set; }
+
+        [Required(ErrorMessage = "A cidade é obrigatória.")]
         public string Cidade { get; set; }
+
+        [Required(ErrorMessage = "O bairro é obrigatório.")]
         public string Bairro { get; set; }
+
+        [Required(ErrorMessage = "O logradouro é obrigatório.")]
         public string Logradouro { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+
+        [Required(ErrorMessage = "O CEP é obrigatório.")]
+        public string Cep { get; set; }
+
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+
+        [Required(ErrorMessage = "O e-mail é obrigatório.")]
+        [EmailAddress(ErrorMessage = "Insira um e-mail válido.")]
+        public string Email { get; set; }
+
+        // Propriedade para exibição do sucesso no cadastro (opcional)
+        public string SuccessMessage { get; set; }
     }
 
+    // Classe para validação personalizada do CPF
     public class CustomValidationCPF : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
@@ -34,6 +56,7 @@ namespace CadastroDeContatos.Models
             return ValidationResult.Success;
         }
 
+        // Método para validar o CPF
         private bool ValidarCPF(string cpf)
         {
             cpf = Regex.Replace(cpf, "[^0-9]", "");
