@@ -51,6 +51,13 @@ namespace CadastroDeContatos.Controllers
                 _logger.LogWarning($"E-mail duplicado encontrado: {model.Email}");
             }
 
+            // Verificação de CEP válido
+            if (!ValidarCEP(model.Cep))
+            {
+                ModelState.AddModelError("Cep", "O CEP informado não é válido.");
+                _logger.LogWarning($"CEP inválido encontrado: {model.Cep}");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -185,6 +192,13 @@ namespace CadastroDeContatos.Controllers
             {
                 ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
                 _logger.LogWarning($"CPF duplicado encontrado ao editar: {model.CPF}");
+            }
+
+            // Verificação de CEP válido durante a edição
+            if (!ValidarCEP(model.Cep))
+            {
+                ModelState.AddModelError("Cep", "O CEP informado não é válido.");
+                _logger.LogWarning($"CEP inválido encontrado: {model.Cep}");
             }
 
             if (ModelState.IsValid)
