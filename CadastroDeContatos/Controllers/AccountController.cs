@@ -209,7 +209,51 @@ namespace CadastroDeContatos.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        // Ação para exibir a página de confirmação de exclusão (GET)
+        // Página de confirmação de senha para exclusão da conta (GET)
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> ConfirmPasswordBeforeDelete()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("Usuário não encontrado.");
+                return NotFound();
+            }
+
+            return View(new ConfirmPasswordViewModel { Email = user.Email });
+        }
+
+        // Confirmação de senha (POST) para proceder com a exclusão
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> ConfirmPasswordBeforeDelete(ConfirmPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Usuário não encontrado.");
+                return View(model);
+            }
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!isPasswordValid)
+            {
+                ModelState.AddModelError(string.Empty, "Senha incorreta.");
+                return View(model);
+            }
+
+            // Se a senha estiver correta, redireciona para a exclusão
+            return RedirectToAction("DeleteAccount");
+        }
+
+        // Página de exclusão de conta (GET)
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> DeleteAccount()
@@ -229,7 +273,7 @@ namespace CadastroDeContatos.Controllers
             return View(model);
         }
 
-        // Ação para excluir a conta do usuário (POST)
+        // Ação para excluir a conta (POST) após a confirmação de senha
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -248,7 +292,7 @@ namespace CadastroDeContatos.Controllers
                 _logger.LogInformation("Usuário excluído com sucesso.");
                 await _signInManager.SignOutAsync();
                 TempData["SuccessMessage"] = "Sua conta foi excluída com sucesso!";
-                return RedirectToAction("Index", "Contatos"); // Redireciona para a página inicial após a exclusão
+                return RedirectToAction("Index", "Home");
             }
             else
             {
@@ -257,5 +301,6 @@ namespace CadastroDeContatos.Controllers
                 return RedirectToAction("DeleteAccount");
             }
         }
+
     }
 }

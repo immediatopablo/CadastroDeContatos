@@ -79,8 +79,9 @@
 
                         @if (User.Identity.IsAuthenticated)
                         {
+                            <!-- Alteração no link "Excluir Conta", redireciona para ConfirmPasswordBeforeDelete -->
                             <li class="nav-item">
-                                <a class="nav-link" href="@Url.Action("DeleteAccount", "Account")">Excluir Conta</a>
+                                <a class="nav-link" href="@Url.Action("ConfirmPasswordBeforeDelete", "Account")">Excluir Conta</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="@Url.Action("Logout", "Account")">Sair</a>
