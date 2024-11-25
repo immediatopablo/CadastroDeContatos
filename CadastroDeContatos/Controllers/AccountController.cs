@@ -242,16 +242,18 @@ namespace CadastroDeContatos.Controllers
                 return View(model);
             }
 
+            // Verificação de senha
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (!isPasswordValid)
             {
-                ModelState.AddModelError(string.Empty, "Senha incorreta.");
-                return View(model);
+                ModelState.AddModelError(string.Empty, "Senha incorreta. Tente novamente.");
+                return View(model); // Retorna a view com a mensagem de erro
             }
 
-            // Se a senha estiver correta, redireciona para a exclusão
+            // Se a senha estiver correta, redireciona para a exclusão da conta
             return RedirectToAction("DeleteAccount");
         }
+
 
         // Página de exclusão de conta (GET)
         [HttpGet]
