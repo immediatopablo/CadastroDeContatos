@@ -23,9 +23,9 @@
 <p>Você está prestes a excluir sua conta. Esta ação é irreversível.</p>
 <p><strong>Usuário:</strong> @Model.UserName</p>
 
-<form asp-action="DeleteAccountConfirmed" method="post">
-    <button type="submit" class="btn btn-danger">Excluir Conta</button>
-    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Cancelar</a>
+<form asp-action="DeleteAccountConfirmed" method="post" onsubmit="return confirm('Você tem certeza que deseja excluir sua conta? Essa ação não pode ser desfeita.');">
+    <button type="submit" class="btn btn-danger">Excluir minha conta</button>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Voltar</a>
 </form>
 
 @section Scripts {
