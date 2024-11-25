@@ -10,13 +10,60 @@
 
     <!-- Links para o Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .navbar {
+            background-color: #2fc7d5;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .navbar-nav .nav-link {
+            color: white !important;
+            font-weight: normal;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: #ddd !important;
+            }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .alert {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-link {
+            color: #2fc7d5;
+        }
+
+            .btn-link:hover {
+                text-decoration: none;
+            }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 14px;
+            color: #777;
+        }
+
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- Cabeçalho -->
         <header>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <!-- Navbar escura -->
+            <nav class="navbar navbar-expand-lg navbar-dark">
                 <a class="navbar-brand" href="@Url.Action("Index", "Contatos")">Cadastro de Contatos</a>
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav ms-auto">
@@ -32,7 +79,6 @@
 
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <!-- Exibe a opção de Logout para usuários autenticados -->
                             <li class="nav-item">
                                 <a class="nav-link" href="@Url.Action("DeleteAccount", "Account")">Excluir Conta</a>
                             </li>
@@ -42,7 +88,6 @@
                         }
                         else
                         {
-                            <!-- Exibe opções de Login e Cadastro para usuários não autenticados -->
                             <li class="nav-item">
                                 <a class="nav-link" href="@Url.Action("Login", "Account")">Login</a>
                             </li>
@@ -58,15 +103,15 @@
         <!-- Mensagem de Sucesso -->
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success">
+            <div class="alert alert-success mt-4">
                 @TempData["SuccessMessage"]
             </div>
         }
 
-        <!-- Mensagem de Erro (opcional) -->
+        <!-- Mensagem de Erro -->
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger">
+            <div class="alert alert-danger mt-4">
                 @TempData["ErrorMessage"]
             </div>
         }
@@ -83,11 +128,16 @@
                 <a class="btn btn-link" href="@Url.Action("ForgotPassword", "Account")">Esqueci a Senha</a>
             </div>
         }
+
+        <!-- Rodapé -->
+        <div class="footer mt-5">
+            <p>&copy; 2024 Cadastro de Contatos. Pablo Immediato da Silva</p>
+        </div>
     </div>
 
-    <!-- Scripts (opcional) -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Mantendo jQuery por precaução, mas pode ser removido se não necessário -->
+    <!-- jQuery por precaução -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation/1.19.3/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>

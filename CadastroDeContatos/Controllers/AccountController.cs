@@ -21,29 +21,30 @@ namespace CadastroDeContatos.Controllers
             _logger = logger;
         }
 
-        // Página de registro (GET)
+        // Página de registro faz o GET
         [HttpGet]
         public IActionResult Register()
         {
             return View(new RegisterViewModel());
         }
 
-        // Página de Google Maps (GET)
+        // Página de Google Maps faz o GET na api do Google
         [HttpGet]
         public IActionResult GoogleMaps()
         {
             return View();
         }
 
-        // Página de login (GET)
+        // Página de login faz o GET
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
         {
+            // Se não houver returnUrl, redireciona para a página inicial
             ViewData["ReturnUrl"] = returnUrl ?? Url.Content("~/");
             return View();
         }
 
-        // Método para registrar um novo usuário (POST)
+        // Método para registrar um novo usuário faz o POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -186,16 +187,6 @@ namespace CadastroDeContatos.Controllers
             return View(model);
         }
 
-        // Método para realizar logout (GET)
-        [HttpGet]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("Usuário deslogado.");
-            return RedirectToAction("Login", "Account");
-        }
-
-        // Método auxiliar para redirecionar para a URL de origem ou para a página de contatos
         private IActionResult RedirectToLocal(string returnUrl)
         {
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -204,8 +195,18 @@ namespace CadastroDeContatos.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Contatos");
+                // Garantir redirecionamento para a página inicial do HomeController
+                return RedirectToAction("Index", "Home");
             }
+        }
+
+        // Método para realizar logout (GET)
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("Usuário deslogado.");
+            return RedirectToAction("Login", "Account");
         }
 
         // Ação para exibir a página de confirmação de exclusão (GET)

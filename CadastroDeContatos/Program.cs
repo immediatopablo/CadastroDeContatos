@@ -34,6 +34,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login"; // Caminho para login
     options.AccessDeniedPath = "/Account/AccessDenied"; // Caminho para acesso negado
+    options.LogoutPath = "/Account/Logout"; // Caminho para logout
+    options.ReturnUrlParameter = "/Home/Index"; // Garantir redirecionamento para a página inicial após login
 });
 
 var app = builder.Build();
@@ -62,8 +64,6 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Contatos}/{action=Index}/{id?}");  // A rota padrão para "Contatos/Index"
-
-
+    pattern: "{controller=Contatos}/{action=Index}/{id?}");  // A rota padrão para "Home/Index" após login
 
 app.Run();
