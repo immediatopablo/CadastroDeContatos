@@ -39,17 +39,26 @@ namespace CadastroDeContatos.Controllers
         {
             _logger.LogInformation($"Dados recebidos para o contato: Nome={model.Nome}, CPF={model.CPF}");
 
-            // Verificação de duplicados e validações
-            if (_context.Contatos.Any(c => c.CPF == model.CPF))
+            // Obtendo o ID do usuário logado
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out Guid usuarioId))
             {
-                ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
-                _logger.LogWarning($"CPF duplicado encontrado: {model.CPF}");
+                ModelState.AddModelError("UserId", "Não foi possível identificar o usuário logado.");
+                _logger.LogWarning("UserId inválido.");
+                return View(model);
             }
 
-            if (_context.Contatos.Any(c => c.Email == model.Email))
+            // Verificação de duplicados somente para o usuário logado
+            if (_context.Contatos.Any(c => c.CPF == model.CPF && c.UsuarioId == usuarioId))
             {
-                ModelState.AddModelError("Email", "Este e-mail já está cadastrado.");
-                _logger.LogWarning($"E-mail duplicado encontrado: {model.Email}");
+                ModelState.AddModelError("CPF", "Você já possui um contato cadastrado com este CPF.");
+                _logger.LogWarning($"CPF duplicado para o mesmo usuário: {model.CPF}");
+            }
+
+            if (_context.Contatos.Any(c => c.Email == model.Email && c.UsuarioId == usuarioId))
+            {
+                ModelState.AddModelError("Email", "Você já possui um contato cadastrado com este e-mail.");
+                _logger.LogWarning($"E-mail duplicado para o mesmo usuário: {model.Email}");
             }
 
             if (!ValidarCEP(model.Cep))
@@ -62,36 +71,26 @@ namespace CadastroDeContatos.Controllers
             {
                 try
                 {
-                    // Corrigido: Convertendo para Guid ao invés de int
-                    var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    if (Guid.TryParse(userIdString, out Guid usuarioId))
+                    var contato = new Contato
                     {
-                        var contato = new Contato
-                        {
-                            Nome = model.Nome,
-                            CPF = model.CPF,
-                            Telefone = model.Telefone,
-                            Cidade = model.Cidade,
-                            Logradouro = model.Logradouro,
-                            Bairro = model.Bairro,
-                            Cep = model.Cep,
-                            Email = model.Email,
-                            Estado = model.Estado,
-                            UsuarioId = usuarioId // Associa o contato ao usuário logado
-                        };
+                        Nome = model.Nome,
+                        CPF = model.CPF,
+                        Telefone = model.Telefone,
+                        Cidade = model.Cidade,
+                        Logradouro = model.Logradouro,
+                        Bairro = model.Bairro,
+                        Cep = model.Cep,
+                        Email = model.Email,
+                        Estado = model.Estado,
+                        UsuarioId = usuarioId // Associa o contato ao usuário logado
+                    };
 
-                        _context.Add(contato);
-                        await _context.SaveChangesAsync();
-                        _logger.LogInformation("Contato salvo com sucesso!");
+                    _context.Add(contato);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Contato salvo com sucesso!");
 
-                        TempData["SuccessMessage"] = "Contato cadastrado com sucesso!";
-                        return RedirectToAction(nameof(Index));
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("UserId", "O identificador do usuário é inválido.");
-                        _logger.LogWarning("UserId inválido.");
-                    }
+                    TempData["SuccessMessage"] = "Contato cadastrado com sucesso!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
@@ -102,6 +101,7 @@ namespace CadastroDeContatos.Controllers
 
             return View(model);
         }
+
 
         // Ação para listar contatos (GET)
         public async Task<IActionResult> Index(string searchNome, string searchCPF)
@@ -115,16 +115,13 @@ namespace CadastroDeContatos.Controllers
                 return View(new List<ContatoViewModel>());
             }
 
-            // Alteração para garantir que o userId seja tratado corretamente como Guid no filtro
-            var contatosQuery = _context.Contatos.AsQueryable().Where(c => c.UsuarioId == userId); // Filtra por UsuarioId como Guid
+            var contatosQuery = _context.Contatos.AsQueryable().Where(c => c.UsuarioId == userId);
 
-            // Filtro pelo nome
             if (!string.IsNullOrEmpty(searchNome))
             {
                 contatosQuery = contatosQuery.Where(c => c.Nome.ToLower().Contains(searchNome.ToLower()));
             }
 
-            // Filtro pelo CPF
             if (!string.IsNullOrEmpty(searchCPF))
             {
                 contatosQuery = contatosQuery.Where(c => c.CPF.Contains(searchCPF));
@@ -143,11 +140,10 @@ namespace CadastroDeContatos.Controllers
                 Bairro = c.Bairro,
                 Cep = c.Cep,
                 Email = c.Email,
-                Estado = c.Estado // Incluindo o Estado no ViewModel
+                Estado = c.Estado
             }).ToList();
 
             ViewData["TotalContatos"] = contatosList.Count;
-
             ViewData["SuccessMessage"] = TempData["SuccessMessage"];
             return View(contatosViewModel);
         }
@@ -180,8 +176,8 @@ namespace CadastroDeContatos.Controllers
                 Logradouro = contato.Logradouro,
                 Bairro = contato.Bairro,
                 Cep = contato.Cep,
-                Email = contato.Email, // Incluindo o E-mail
-                Estado = contato.Estado // Incluindo o Estado
+                Email = contato.Email,
+                Estado = contato.Estado
             };
 
             return View(model);
@@ -198,21 +194,28 @@ namespace CadastroDeContatos.Controllers
                 return BadRequest();
             }
 
-            // Verificação de e-mail duplicado durante a edição
-            if (_context.Contatos.Any(c => c.Email == model.Email && c.Id != id))
+            // Obtendo o ID do usuário logado
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out Guid usuarioId))
             {
-                ModelState.AddModelError("Email", "Este e-mail já está cadastrado, não é possível alterar.");
-                _logger.LogWarning($"E-mail duplicado encontrado ao editar: {model.Email}");
+                ModelState.AddModelError("UserId", "Não foi possível identificar o usuário logado.");
+                _logger.LogWarning("UserId inválido.");
+                return View(model);
             }
 
-            // Verificação de CPF duplicado
-            if (_context.Contatos.Any(c => c.CPF == model.CPF && c.Id != id))
+            // Verificação de duplicados somente para o usuário logado
+            if (_context.Contatos.Any(c => c.CPF == model.CPF && c.Id != id && c.UsuarioId == usuarioId))
             {
-                ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
-                _logger.LogWarning($"CPF duplicado encontrado ao editar: {model.CPF}");
+                ModelState.AddModelError("CPF", "Você já possui outro contato cadastrado com este CPF.");
+                _logger.LogWarning($"CPF duplicado ao editar para o mesmo usuário: {model.CPF}");
             }
 
-            // Verificação de CEP válido durante a edição
+            if (_context.Contatos.Any(c => c.Email == model.Email && c.Id != id && c.UsuarioId == usuarioId))
+            {
+                ModelState.AddModelError("Email", "Você já possui outro contato cadastrado com este e-mail.");
+                _logger.LogWarning($"E-mail duplicado ao editar para o mesmo usuário: {model.Email}");
+            }
+
             if (!ValidarCEP(model.Cep))
             {
                 ModelState.AddModelError("Cep", "O CEP informado não é válido.");
@@ -225,8 +228,9 @@ namespace CadastroDeContatos.Controllers
                 {
                     var contato = await _context.Contatos.FindAsync(id);
 
-                    if (contato == null)
+                    if (contato == null || contato.UsuarioId != usuarioId)
                     {
+                        _logger.LogWarning("Contato não encontrado ou não pertence ao usuário logado.");
                         return NotFound();
                     }
 
@@ -237,8 +241,8 @@ namespace CadastroDeContatos.Controllers
                     contato.Logradouro = model.Logradouro;
                     contato.Bairro = model.Bairro;
                     contato.Cep = model.Cep;
-                    contato.Email = model.Email; // Atualizando o E-mail
-                    contato.Estado = model.Estado; // Atualizando o Estado
+                    contato.Email = model.Email;
+                    contato.Estado = model.Estado;
 
                     _context.Update(contato);
                     await _context.SaveChangesAsync();
@@ -256,6 +260,7 @@ namespace CadastroDeContatos.Controllers
 
             return View(model);
         }
+
 
         // Ação para exibir a página de confirmação de exclusão (GET)
         [HttpGet]

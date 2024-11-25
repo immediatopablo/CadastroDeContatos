@@ -7,18 +7,31 @@
 
 <h1>@ViewData["Title"]</h1>
 
+<!-- Exibe erros de validação globais -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <strong>Erro!</strong> O formulário contém erros.
+    </div>
+}
+
+@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+{
+    <div class="alert alert-danger">@error.ErrorMessage</div>
+}
+
 <form asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id" />
 
     <!-- Campos para Nome, CPF, Telefone, etc. -->
     <div class="form-group">
         <label asp-for="Nome" class="control-label"></label>
-        <input asp-for="Nome" class="form-control @(ViewData.ModelState.ContainsKey("Nome") ? "is-invalid" : "")" />
+        <input asp-for="Nome" class="form-control @(ViewData.ModelState.ContainsKey("Nome") ? "is-invalid" : "")" required />
         <span asp-validation-for="Nome" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="CPF" class="control-label"></label>
-        <input asp-for="CPF" class="form-control @(ViewData.ModelState.ContainsKey("CPF") ? "is-invalid" : "")" />
+        <input asp-for="CPF" class="form-control @(ViewData.ModelState.ContainsKey("CPF") ? "is-invalid" : "")" required />
         <span asp-validation-for="CPF" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -47,10 +60,9 @@
         <span asp-validation-for="Cep" class="text-danger"></span>
     </div>
 
-   
     <div class="form-group">
         <label asp-for="Email" class="control-label"></label>
-        <input asp-for="Email" class="form-control @(ViewData.ModelState.ContainsKey("Email") ? "is-invalid" : "")" />
+        <input asp-for="Email" class="form-control @(ViewData.ModelState.ContainsKey("Email") ? "is-invalid" : "")" required />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
@@ -71,4 +83,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#Cep').blur(function () {
+                var cep = $(this).val().replace('-', '');
+                if (cep.length === 8) {
+                    $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function (data) {
+                        if (!data.erro) {
+                            $('#Logradouro').val(data.logradouro);
+                            $('#Bairro').val(data.bairro);
+                            $('#Cidade').val(data.localidade);
+                            $('#Estado').val(data.uf);
+                        } else {
+                            alert('CEP não encontrado.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 }

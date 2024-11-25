@@ -117,21 +117,18 @@ namespace CadastroDeContatos.Migrations
                     b.Property<string>("Telefone")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
+                    b.Property<Guid>("UsuarioId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CPF")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Contato_CPF");
 
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasDatabaseName("IX_Contato_Email");
+
+                    b.HasIndex("UsuarioId", "CPF")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Contato_Usuario_CPF");
 
                     b.ToTable("Contatos");
                 });

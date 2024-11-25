@@ -7,67 +7,68 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<!-- Exibe erros de validação globais -->
-@if (!ViewData.ModelState.IsValid)
+<!-- Exibe erros globais -->
+@if (ViewData.ModelState.ErrorCount > 0)
 {
     <div class="alert alert-danger">
-        <strong>Erro!</strong> O formulário contém erros.
+        <strong>Erro!</strong> Há problemas no formulário. Por favor, revise os campos destacados.
     </div>
-}
-
-@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-{
-    <div class="alert alert-danger">@error.ErrorMessage</div>
 }
 
 <form asp-action="Create" method="post">
     <div class="form-group">
-        <label for="Nome">Nome</label>
-        <input type="text" class="form-control" id="Nome" asp-for="Nome" />
+        <label asp-for="Nome"></label>
+        <input type="text" class="form-control" asp-for="Nome" required />
+        <span asp-validation-for="Nome" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="CPF">CPF</label>
-        <input type="text" class="form-control" id="CPF" asp-for="CPF" />
+        <label asp-for="CPF"></label>
+        <input type="text" class="form-control" asp-for="CPF" required maxlength="14" />
+        <span asp-validation-for="CPF" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Telefone">Telefone</label>
-        <input type="text" class="form-control" id="Telefone" asp-for="Telefone" />
+        <label asp-for="Telefone"></label>
+        <input type="text" class="form-control" asp-for="Telefone" maxlength="15" />
+        <span asp-validation-for="Telefone" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Cep">CEP</label>
-        <input type="text" class="form-control" id="Cep" asp-for="Cep" />
+        <label asp-for="Cep"></label>
+        <input type="text" class="form-control" asp-for="Cep" maxlength="9" required />
+        <span asp-validation-for="Cep" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Logradouro">Logradouro</label>
-        <input type="text" class="form-control" id="Logradouro" asp-for="Logradouro" />
+        <label asp-for="Logradouro"></label>
+        <input type="text" class="form-control" asp-for="Logradouro" />
+        <span asp-validation-for="Logradouro" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Bairro">Bairro</label>
-        <input type="text" class="form-control" id="Bairro" asp-for="Bairro" />
+        <label asp-for="Bairro"></label>
+        <input type="text" class="form-control" asp-for="Bairro" />
+        <span asp-validation-for="Bairro" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Cidade">Cidade</label>
-        <input type="text" class="form-control" id="Cidade" asp-for="Cidade" />
+        <label asp-for="Cidade"></label>
+        <input type="text" class="form-control" asp-for="Cidade" required />
+        <span asp-validation-for="Cidade" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Estado">Estado</label>
-        <input type="text" class="form-control" id="Estado" asp-for="Estado" />
+        <label asp-for="Estado"></label>
+        <input type="text" class="form-control" asp-for="Estado" required maxlength="2" />
+        <span asp-validation-for="Estado" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label for="Email">Email</label>
-        <input type="email" class="form-control" id="Email" asp-for="Email" />
+        <label asp-for="Email"></label>
+        <input type="email" class="form-control" asp-for="Email" required />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-
-    <!-- Campo oculto para enviar o UserId -->
-    <input type="hidden" asp-for="UserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
 
     <button type="submit" class="btn btn-primary">Salvar</button>
 </form>
@@ -77,8 +78,8 @@
     <script>
         $(document).ready(function () {
             $('#Cep').blur(function () {
-                var cep = $(this).val().replace('-', '');
-                if (cep.length == 8) { // Verifica se o CEP tem 8 caracteres
+                var cep = $(this).val().replace(/\D/g, ''); // Remove caracteres não numéricos
+                if (cep.length === 8) { // Verifica se o CEP tem 8 caracteres
                     $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function (data) {
                         if (!data.erro) {
                             $('#Logradouro').val(data.logradouro);
@@ -88,8 +89,10 @@
                         } else {
                             alert('CEP não encontrado.');
                         }
+                    }).fail(function () {
+                        alert('Erro ao consultar o CEP. Tente novamente.');
                     });
-                } else {
+                } else if (cep) {
                     alert('CEP inválido.');
                 }
             });
