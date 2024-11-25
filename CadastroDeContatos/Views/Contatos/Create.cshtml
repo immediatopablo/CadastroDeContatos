@@ -1,4 +1,5 @@
-﻿@model CadastroDeContatos.Models.ViewModels.ContatoViewModel
+﻿@using System.Security.Claims
+@model CadastroDeContatos.Models.ViewModels.ContatoViewModel
 
 @{
     ViewData["Title"] = "Criar Contato";
@@ -64,6 +65,9 @@
         <label for="Email">Email</label>
         <input type="email" class="form-control" id="Email" asp-for="Email" />
     </div>
+
+    <!-- Campo oculto para enviar o UserId -->
+    <input type="hidden" asp-for="UserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
 
     <button type="submit" class="btn btn-primary">Salvar</button>
 </form>

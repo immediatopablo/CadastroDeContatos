@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using CadastroDeContatos.Models;
 using CadastroDeContatos.Models.ViewModels;
+using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace CadastroDeContatos.Controllers
 {
@@ -37,21 +39,19 @@ namespace CadastroDeContatos.Controllers
         {
             _logger.LogInformation($"Dados recebidos para o contato: Nome={model.Nome}, CPF={model.CPF}");
 
-            // Verificação de CPF duplicado
+            // Verificação de duplicados e validações
             if (_context.Contatos.Any(c => c.CPF == model.CPF))
             {
                 ModelState.AddModelError("CPF", "O CPF informado já está cadastrado.");
                 _logger.LogWarning($"CPF duplicado encontrado: {model.CPF}");
             }
 
-            // Verificação de e-mail duplicado
             if (_context.Contatos.Any(c => c.Email == model.Email))
             {
                 ModelState.AddModelError("Email", "Este e-mail já está cadastrado.");
                 _logger.LogWarning($"E-mail duplicado encontrado: {model.Email}");
             }
 
-            // Verificação de CEP válido
             if (!ValidarCEP(model.Cep))
             {
                 ModelState.AddModelError("Cep", "O CEP informado não é válido.");
@@ -62,25 +62,36 @@ namespace CadastroDeContatos.Controllers
             {
                 try
                 {
-                    var contato = new Contato
+                    // Corrigido: Convertendo para Guid ao invés de int
+                    var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (Guid.TryParse(userIdString, out Guid usuarioId))
                     {
-                        Nome = model.Nome,
-                        CPF = model.CPF,
-                        Telefone = model.Telefone,
-                        Cidade = model.Cidade,
-                        Logradouro = model.Logradouro,
-                        Bairro = model.Bairro,
-                        Cep = model.Cep,
-                        Email = model.Email,
-                        Estado = model.Estado // Adicionando o Estado
-                    };
+                        var contato = new Contato
+                        {
+                            Nome = model.Nome,
+                            CPF = model.CPF,
+                            Telefone = model.Telefone,
+                            Cidade = model.Cidade,
+                            Logradouro = model.Logradouro,
+                            Bairro = model.Bairro,
+                            Cep = model.Cep,
+                            Email = model.Email,
+                            Estado = model.Estado,
+                            UsuarioId = usuarioId // Associa o contato ao usuário logado
+                        };
 
-                    _context.Add(contato);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Contato salvo com sucesso!");
+                        _context.Add(contato);
+                        await _context.SaveChangesAsync();
+                        _logger.LogInformation("Contato salvo com sucesso!");
 
-                    TempData["SuccessMessage"] = "Contato cadastrado com sucesso!";
-                    return RedirectToAction(nameof(Index));
+                        TempData["SuccessMessage"] = "Contato cadastrado com sucesso!";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("UserId", "O identificador do usuário é inválido.");
+                        _logger.LogWarning("UserId inválido.");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -97,9 +108,17 @@ namespace CadastroDeContatos.Controllers
         {
             _logger.LogInformation($"Pesquisando contatos com Nome: {searchNome}, CPF: {searchCPF}");
 
-            var contatosQuery = _context.Contatos.AsQueryable();
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier); // Obtendo o UserId do usuário logado
+            if (!Guid.TryParse(userIdString, out Guid userId))
+            {
+                _logger.LogWarning("UserId inválido para o filtro.");
+                return View(new List<ContatoViewModel>());
+            }
 
-            // Filtro pelo nome, ignorando maiúsculas e minúsculas
+            // Alteração para garantir que o userId seja tratado corretamente como Guid no filtro
+            var contatosQuery = _context.Contatos.AsQueryable().Where(c => c.UsuarioId == userId); // Filtra por UsuarioId como Guid
+
+            // Filtro pelo nome
             if (!string.IsNullOrEmpty(searchNome))
             {
                 contatosQuery = contatosQuery.Where(c => c.Nome.ToLower().Contains(searchNome.ToLower()));
@@ -125,9 +144,8 @@ namespace CadastroDeContatos.Controllers
                 Cep = c.Cep,
                 Email = c.Email,
                 Estado = c.Estado // Incluindo o Estado no ViewModel
-            });
+            }).ToList();
 
-            // Contador de contatos
             ViewData["TotalContatos"] = contatosList.Count;
 
             ViewData["SuccessMessage"] = TempData["SuccessMessage"];
@@ -231,7 +249,8 @@ namespace CadastroDeContatos.Controllers
                 catch (Exception ex)
                 {
                     _logger.LogError($"Erro ao atualizar o contato: {ex.Message}");
-                    ModelState.AddModelError("", "Erro ao salvar as alterações. Tente novamente.");
+                    TempData["ErrorMessage"] = "Erro ao atualizar o contato.";
+                    return View(model);
                 }
             }
 
@@ -263,7 +282,7 @@ namespace CadastroDeContatos.Controllers
                 Estado = contato.Estado
             };
 
-            return View(model); // Retorna a view para confirmação de exclusão
+            return View(model);
         }
 
         // Ação para excluir um contato (POST)

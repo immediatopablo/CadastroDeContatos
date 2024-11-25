@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
@@ -41,7 +42,11 @@ namespace CadastroDeContatos.Models.ViewModels
 
         // Propriedade para exibição do sucesso no cadastro (opcional)
         public string SuccessMessage { get; set; }
+
         public string Estado { get; set; }
+
+        // Corrigido: Propriedade para associar o contato ao usuário logado (do tipo Guid)
+        public Guid UserId { get; set; }
     }
 
     // Classe para validação personalizada do CPF
