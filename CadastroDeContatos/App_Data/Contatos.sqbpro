@@ -2,4 +2,4 @@
 
 select * from AspNetUsers
 
-delete from Contatos</sql><current_tab id="0"/></tab_sql></sqlb_project>
+DELETE from Contatos</sql><current_tab id="0"/></tab_sql></sqlb_project>

@@ -1,15 +1,44 @@
-﻿oogle.maps.Map(document.getElementById('map'), {
-            zoom: 15,
-            center: location
-        });
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Contato</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdfmKfdDgHw0L7DyeWvcE1HTOTwOP1z9c&callback=initMap" async defer></script>
+</head>
+<body>
 
-        new google.maps.Marker({
-            position: location,
-            map: map
-        });
-    }
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdfmKfdDgHw0L7DyeWvcE1HTOTwOP1z9c&callback=initMap"></script>
+    <h2>Detalhes do Contato</h2>
 
-<a href="@Url.Action("Edit", "Contatos", new { id = Model.Id })">Editar</a> |
-<a href="@Url.Action("Delete", "Contatos", new { id = Model.Id })">Excluir</a>
+    <!-- Exibição do mapa -->
+    <div id="map" style="height: 400px; width: 100%;"></div>
+
+    <!-- Links para editar e excluir -->
+    <a href="@Url.Action("Edit", "Contatos", new { id = Model.Id })">Editar</a> |
+    <a href="@Url.Action("Delete", "Contatos", new { id = Model.Id })">Excluir</a>
+
+    <script>
+        // Função de inicialização do mapa
+        function initMap() {
+            // Coordenadas para o mapa (aqui, você deve passar as coordenadas dinamicamente do Model)
+            var location = {
+                lat: @Model.Latitude,
+                lng: @Model.Longitude
+            };
+
+            // Criar o mapa com zoom e centro definidos nas coordenadas
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: location
+            });
+
+            // Criar o marcador na posição especificada
+            new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+    </script>
+
+</body>
+</html>

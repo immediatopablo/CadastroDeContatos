@@ -1,14 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema; // Namespace para mapear propriedades da classe para tabelas no banco de dados
 using System.Text.RegularExpressions;
 
 namespace CadastroDeContatos.Models.ViewModels
 {
-    [Table("Contatos")]  // Tabela no banco de dados que vai gravar os contatos!
+    [Table("Contatos")]  // Tabela no banco de dados que vai gravar os contatos
     public class ContatoViewModel
     {
-        public int Id { get; set; }
+        public int Id { get; set; } // Identificador único do contato
 
         [Required(ErrorMessage = "O nome é obrigatório.")]
         public string Nome { get; set; }
@@ -40,12 +40,12 @@ namespace CadastroDeContatos.Models.ViewModels
         [EmailAddress(ErrorMessage = "Insira um e-mail válido.")]
         public string Email { get; set; }
 
-        // Propriedade para exibição do sucesso no cadastro (opcional)
+        // Propriedade para exibição do sucesso no cadastro
         public string SuccessMessage { get; set; }
 
         public string Estado { get; set; }
 
-        // Corrigido: Propriedade para associar o contato ao usuário logado (do tipo Guid)
+        // Propriedade para associar o contato ao usuário logado (do tipo Guid)
         public Guid UserId { get; set; }
     }
 

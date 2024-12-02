@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using System.Linq; // Namespace que oferece funcionalidades para consultar coleções (ex.: filtros, buscas..)
+using System.Threading.Tasks; // Namespace usado para interagir com o banco de dados via Entity Framework Core
+using Microsoft.EntityFrameworkCore; // Namespace que permite acessar informações do usuário autenticado
 using System.Text.RegularExpressions;
 using CadastroDeContatos.Models;
 using CadastroDeContatos.Models.ViewModels;
 using System.Security.Claims;
-using System.Collections.Generic;
+using System.Collections.Generic; // Namespace que trabalha com coleções, como listas
 
 namespace CadastroDeContatos.Controllers
 {
@@ -101,7 +101,6 @@ namespace CadastroDeContatos.Controllers
 
             return View(model);
         }
-
 
         // Ação para listar contatos (GET)
         public async Task<IActionResult> Index(string searchNome, string searchCPF)
@@ -261,7 +260,6 @@ namespace CadastroDeContatos.Controllers
             return View(model);
         }
 
-
         // Ação para exibir a página de confirmação de exclusão (GET)
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
@@ -315,6 +313,38 @@ namespace CadastroDeContatos.Controllers
             {
                 _logger.LogError($"Erro ao excluir o contato com ID={id}: {ex.Message}");
                 TempData["ErrorMessage"] = "Erro ao excluir o contato. Tente novamente.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // Função para limpar todos os contatos de um usuário logado
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LimparTudo()
+        {
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!Guid.TryParse(userIdString, out Guid usuarioId))
+                {
+                    _logger.LogWarning("UserId inválido para limpar contatos.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var contatos = await _context.Contatos
+                    .Where(c => c.UsuarioId == usuarioId)
+                    .ToListAsync();
+
+                _context.Contatos.RemoveRange(contatos);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Todos os contatos foram excluídos com sucesso!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao excluir todos os contatos: {ex.Message}");
+                TempData["ErrorMessage"] = "Erro ao excluir todos os contatos.";
                 return RedirectToAction(nameof(Index));
             }
         }

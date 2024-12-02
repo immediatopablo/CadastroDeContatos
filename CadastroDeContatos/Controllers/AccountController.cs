@@ -1,18 +1,18 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using CadastroDeContatos.ViewModels;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using CadastroDeContatos.Models;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity; // Gerencia a identidade de Usuários do sistema
+using Microsoft.AspNetCore.Mvc; // Fornece classes e interfaces, manipular requisições HTTP
+using CadastroDeContatos.ViewModels; // Comunicação entre as controllers e as views
+using System.Threading.Tasks; // Tipos assíncronos
+using Microsoft.Extensions.Logging; // Namespace para fornecer suporte de registro de logs
+using CadastroDeContatos.Models; // Comunicação entre as controllers e as models
+using Microsoft.AspNetCore.Authorization; // Namespace contém classes e atributos relacionados à autorização
 
 namespace CadastroDeContatos.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILogger<AccountController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager; // Gerência usuários (criação, busca, exclusão)
+        private readonly SignInManager<ApplicationUser> _signInManager; // Gerência login e logout
+        private readonly ILogger<AccountController> _logger; // Log de informações ou erro para monitorar
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<AccountController> logger)
         {
@@ -23,7 +23,7 @@ namespace CadastroDeContatos.Controllers
 
         // Página de registro faz o GET
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Register() // Get retorna a página de registro com um modelo vazio
         {
             return View(new RegisterViewModel());
         }
@@ -37,7 +37,7 @@ namespace CadastroDeContatos.Controllers
 
         // Página de login faz o GET
         [HttpGet]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string returnUrl = null) // Carrega a página de login
         {
             // Se não houver returnUrl, redireciona para a página inicial
             ViewData["ReturnUrl"] = returnUrl ?? Url.Content("~/");
@@ -47,7 +47,7 @@ namespace CadastroDeContatos.Controllers
         // Método para registrar um novo usuário faz o POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model) // Faz as validações e registra o usuário
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +80,7 @@ namespace CadastroDeContatos.Controllers
 
         // Método de redefinir senha - Página de solicitação de redefinição (GET)
         [HttpGet]
-        public IActionResult ForgotPassword()
+        public IActionResult ForgotPassword() // Exibe o formulário de recuperação de senha
         {
             return View();
         }
@@ -88,14 +88,14 @@ namespace CadastroDeContatos.Controllers
         // Método para enviar o link de redefinição de senha (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model) // Envia instruções de redefinir senha, conforme validação de e-mail
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null)
                 {
-                    TempData["InfoMessage"] = "Se o e-mail informado estiver correto, você receberá um link para redefinir sua senha.";
+                    TempData["InfoMessage"] = "Se o e-mail informado estiver correto, você receberá irá para pagina de redefinir senha.";
                     return RedirectToAction("ForgotPasswordConfirmation");
                 }
 
@@ -108,7 +108,7 @@ namespace CadastroDeContatos.Controllers
 
         // Página para redefinir senha (GET)
         [HttpGet]
-        public IActionResult ResetPassword(string email)
+        public IActionResult ResetPassword(string email) // Exibe o formulário para redefinição de senha
         {
             if (email == null)
             {
@@ -122,7 +122,7 @@ namespace CadastroDeContatos.Controllers
         // Método para processar a redefinição de senha (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model) // Remove a senha atual e define uma nova
         {
             if (ModelState.IsValid)
             {
@@ -202,7 +202,7 @@ namespace CadastroDeContatos.Controllers
 
         // Método para realizar logout (GET)
         [HttpGet]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout() // Sai do sistema e redireciona para a página de login 
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("Usuário deslogado.");
@@ -212,7 +212,7 @@ namespace CadastroDeContatos.Controllers
         // Página de confirmação de senha para exclusão da conta (GET)
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> ConfirmPasswordBeforeDelete()
+        public async Task<IActionResult> ConfirmPasswordBeforeDelete() // Exibe um formulário para confirmar a senha antes de excluir a conta
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -258,7 +258,7 @@ namespace CadastroDeContatos.Controllers
         // Página de exclusão de conta (GET)
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> DeleteAccount()
+        public async Task<IActionResult> DeleteAccount() // Mostra a página de exclusão com detalhes do usuário
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -279,7 +279,7 @@ namespace CadastroDeContatos.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> DeleteAccountConfirmed()
+        public async Task<IActionResult> DeleteAccountConfirmed() // Exclui o usuário, faz logout e exibe uma mensagem de sucesso
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)

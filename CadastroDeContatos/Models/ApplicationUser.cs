@@ -2,8 +2,8 @@
 
 namespace CadastroDeContatos.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser // Herda propriedades da Identityuser
     {
-        // Caso precise de informações adicionais para o usuário, você pode adicionar aqui.
+        // Para adicionar mais informações para o usuário
     }
 }

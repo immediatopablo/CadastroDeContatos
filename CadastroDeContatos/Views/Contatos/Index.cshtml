@@ -1,4 +1,4 @@
-﻿@using CadastroDeContatos.Models.ViewModels
+﻿@using CadastroDeContatos.Models.ViewModels <!-- Namespace para usar os modelos de visualização -->
 @model IEnumerable<CadastroDeContatos.Models.ViewModels.ContatoViewModel>
 
 @{
@@ -6,6 +6,21 @@
 }
 
 <h1>@ViewData["Title"]</h1>
+
+<!-- Exibição de mensagens de sucesso ou erro -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
 <!-- Formulário de pesquisa -->
 <form method="get" asp-action="Index">
@@ -19,6 +34,51 @@
     </div>
     <button type="submit" class="btn btn-primary">Filtrar</button>
 </form>
+
+<!-- Div para o mapa -->
+<div id="map" style="width: 100%; height: 400px; margin-top: 20px;"></div>
+
+<!-- Script do Google Maps -->
+<script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdfmKfdDgHw0L7DyeWvcE1HTOTwOP1z9c&libraries&callback=initMap">
+</script>
+
+<script>
+    let map;
+    let markers = []; // Array para armazenar os marcadores
+
+    // Inicializa o mapa com uma localização padrão
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: -25.4284, lng: -49.2733 }, // Coordenadas de Curitiba
+            zoom: 12,
+        });
+    }
+
+    // Função para adicionar um marcador no mapa
+    function addMarker(address) {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ address: address }, (results, status) => {
+            if (status === "OK") {
+                // Adiciona um novo marcador ao mapa
+                const newMarker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location,
+                });
+
+                // Armazena o marcador no array
+                markers.push(newMarker);
+
+                // Ajusta o centro e o zoom do mapa para incluir todos os marcadores
+                const bounds = new google.maps.LatLngBounds();
+                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                map.fitBounds(bounds);
+            } else {
+                alert("Geocode não foi bem-sucedido: " + status);
+            }
+        });
+    }
+</script>
 
 <!-- Tabela de contatos -->
 <table class="table">
@@ -50,6 +110,10 @@
                 <td>@contato.Email</td>
                 <td>@contato.Estado</td>
                 <td>
+                    <button class="btn btn-info"
+                            onclick="addMarker('@($"{contato.Logradouro}, {contato.Bairro}, {contato.Cidade}, {contato.Estado}, {contato.Cep}")')">
+                        Mostrar no Mapa
+                    </button>
                     <a asp-action="Edit" asp-route-id="@contato.Id" class="btn btn-warning">Editar</a>
                     <a asp-action="Delete" asp-route-id="@contato.Id" class="btn btn-danger">Excluir</a>
                 </td>
@@ -63,4 +127,13 @@
 <!-- Adicionar um novo contato -->
 <div>
     <a asp-action="Create" class="btn btn-success">Adicionar Novo Contato</a>
+</div>
+
+<!-- Botão para limpar todos os contatos -->
+<div class="mt-3">
+    <form method="post" asp-action="LimparTudo">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir todos os contatos?')">
+            Excluir Todos os Contatos
+        </button>
+    </form>
 </div>

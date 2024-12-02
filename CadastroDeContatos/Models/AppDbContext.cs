@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using CadastroDeContatos.Models;
 using CadastroDeContatos.Controllers;
 
-public class AppDbContext : IdentityDbContext<ApplicationUser>
+public class AppDbContext : IdentityDbContext<ApplicationUser> // Classe de contexto do banco de dados, herda de IdentityDbContext para suportar a autenticação do usuário
 {
     public DbSet<Contato> Contatos { get; set; } // A referência para a tabela de Contatos
 
+    // Construtor do DbContext, recebe as opções de configuração do banco de dados
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder builder)
