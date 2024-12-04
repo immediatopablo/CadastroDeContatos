@@ -1,7 +1,6 @@
 using CadastroDeContatos.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using CadastroDeContatos.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Builder;
@@ -26,6 +25,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
+// Adicionar o IHttpClientFactory para lidar com o proxy
+builder.Services.AddHttpClient();
+
 // Outros serviços
 builder.Services.AddControllersWithViews();
 
@@ -35,7 +37,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Login"; // Caminho para login
     options.AccessDeniedPath = "/Account/AccessDenied"; // Caminho para acesso negado
     options.LogoutPath = "/Account/Logout"; // Caminho para logout
-    options.ReturnUrlParameter = "/Home/Index"; // Garantir redirecionamento para a página inicial após login
+    options.ReturnUrlParameter = "/Home/Index"; // Redirecionamento para a página inicial após login
 });
 
 var app = builder.Build();
@@ -57,13 +59,12 @@ app.UseAuthentication();  // Necessário para autenticação
 app.UseAuthorization();   // Necessário para autorização
 
 // Configuração das rotas
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Contatos}/{action=Index}/{id?}");  // A rota padrão para "Contatos/Index"
 
 app.MapControllerRoute(
     name: "login",
     pattern: "{controller=Account}/{action=Login}/{id?}");  // Caminho para login
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Contatos}/{action=Index}/{id?}");  // A rota padrão para "Home/Index" após login
 
 app.Run();

@@ -38,10 +38,8 @@
 <!-- Div para o mapa -->
 <div id="map" style="width: 100%; height: 400px; margin-top: 20px;"></div>
 
-<!-- Script do Google Maps -->
-<script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdfmKfdDgHw0L7DyeWvcE1HTOTwOP1z9c&libraries&callback=initMap">
-</script>
+<!-- Carregando o script do Google Maps via proxy -->
+<script async src="/Maps/LoadGoogleMapsAPI?callback=initMap"></script>
 
 <script>
     let map;
